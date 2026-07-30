@@ -46,7 +46,10 @@ export const profileService = {
 
   async saveProfile(profile) {
     try {
-      const response = await api.patch('/profile', { ...profileCache, ...profile });
+      const response = await api.patch('/profile', {
+        ...profileCache,
+        ...profile,
+      });
       return syncProfile(response.data);
     } catch {
       throw new Error('Unable to save profile');
@@ -60,6 +63,13 @@ export const profileService = {
     } catch {
       throw new Error('Unable to reset profile');
     }
+  },
+
+  // NEW
+  clearCache() {
+    profileCache = { ...defaultProfile };
+    profileLoaded = false;
+    emitStorageEvent(STORAGE_EVENTS.profile);
   },
 
   isLoaded() {

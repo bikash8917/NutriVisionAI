@@ -41,7 +41,11 @@ export const settingsService = {
 
   async saveSettings(settings) {
     try {
-      const response = await api.patch('/settings', { ...settingsCache, ...settings, theme: 'light' });
+      const response = await api.patch('/settings', {
+        ...settingsCache,
+        ...settings,
+        theme: 'light',
+      });
       return syncSettings(response.data);
     } catch {
       throw new Error('Unable to save settings');
@@ -55,6 +59,13 @@ export const settingsService = {
     } catch {
       throw new Error('Unable to reset settings');
     }
+  },
+
+  // NEW
+  clearCache() {
+    settingsCache = { ...defaultSettings };
+    settingsLoaded = false;
+    emitStorageEvent(STORAGE_EVENTS.settings);
   },
 
   isLoaded() {

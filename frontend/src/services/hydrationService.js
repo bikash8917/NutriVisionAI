@@ -22,6 +22,7 @@ export const hydrationService = {
     } catch {
       hydrationCache = normalizeState(defaultHydrationState);
     }
+
     hydrationLoaded = true;
     emitStorageEvent(STORAGE_EVENTS.settings);
     return hydrationCache;
@@ -41,7 +42,7 @@ export const hydrationService = {
     const today = new Date();
     let total = 0;
 
-    for (let offset = 0; offset < days; offset += 1) {
+    for (let offset = 0; offset < days; offset++) {
       const date = new Date(today);
       date.setDate(today.getDate() - offset);
       const key = date.toISOString().slice(0, 10);
@@ -54,29 +55,13 @@ export const hydrationService = {
   addWater(amount = 0.25) {
     const state = this.getState();
     const todayKey = getTodayKey();
-    const nextAmount = Number((Number(state.days[todayKey] || 0) + Number(amount || 0)).toFixed(2));
+    const nextAmount = Number(
+      (Number(state.days[todayKey] || 0) + Number(amount || 0)).toFixed(2)
+    );
 
-    return api
-      .patch('/hydration', { amountLiters: nextAmount })
-      .then((response) => {
-        const serverAmount = Number(response.data?.today ?? nextAmount);
-        hydrationCache = normalizeState({
-          ...state,
-          days: {
-            ...state.days,
-            [todayKey]: serverAmount,
-          },
-        });
-        emitStorageEvent(STORAGE_EVENTS.settings);
-        return serverAmount;
-      });
-  },
+    return api.patch('/hydration', { amountLiters: nextAmount }).then((response) => {
+      const serverAmount = Number(response.data?.today ?? nextAmount);
 
-  resetToday() {
-    const state = this.getState();
-    const todayKey = getTodayKey();
-    return api.patch('/hydration', { reset: true }).then((response) => {
-      const serverAmount = Number(response.data?.today ?? 0);
       hydrationCache = normalizeState({
         ...state,
         days: {
@@ -84,9 +69,37 @@ export const hydrationService = {
           [todayKey]: serverAmount,
         },
       });
+
       emitStorageEvent(STORAGE_EVENTS.settings);
       return serverAmount;
     });
+  },
+
+  resetToday() {
+    const state = this.getState();
+    const todayKey = getTodayKey();
+
+    return api.patch('/hydration', { reset: true }).then((response) => {
+      const serverAmount = Number(response.data?.today ?? 0);
+
+      hydrationCache = normalizeState({
+        ...state,
+        days: {
+          ...state.days,
+          [todayKey]: serverAmount,
+        },
+      });
+
+      emitStorageEvent(STORAGE_EVENTS.settings);
+      return serverAmount;
+    });
+  },
+
+  // NEW
+  clearCache() {
+    hydrationCache = normalizeState(defaultHydrationState);
+    hydrationLoaded = false;
+    emitStorageEvent(STORAGE_EVENTS.settings);
   },
 
   isLoaded() {
