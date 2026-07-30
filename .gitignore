@@ -1,0 +1,29 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+
+# Environment variables
+.env
+
+# Database
+*.db
+
+# Uploads
+uploads/
+
+# Training datasets
+food-101/
+dataset/
+train/
+test/
+
+# Node
+node_modules/
+
+# VS Code
+.vscode/
+
+frontend/dist/
+
+backend/test_images/

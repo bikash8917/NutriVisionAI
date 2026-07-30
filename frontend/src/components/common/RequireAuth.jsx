@@ -1,0 +1,23 @@
+import { Navigate, useLocation } from 'react-router-dom';
+import Loader from './Loader';
+import { useAuth } from '../../context/AuthContext';
+
+export default function RequireAuth({ children }) {
+  const { user, isLoading } = useAuth();
+  const location = useLocation();
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-50">
+        <Loader />
+      </div>
+    );
+  }
+
+  if (!user?.email) {
+    return <Navigate to="/login" replace state={{ from: location }} />;
+  }
+
+  return children;
+}
+
