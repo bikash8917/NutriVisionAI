@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const getDefaultApiBaseUrl = () => {
-  if (typeof window === 'undefined') return 'http://127.0.0.1:5000/api';
+  if (typeof window === 'undefined') return 'https://nutrivisionai.onrender.com/api';
   const { protocol, hostname } = window.location;
   return `${protocol}//${hostname}:5000/api`;
 };
