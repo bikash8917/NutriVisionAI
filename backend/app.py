@@ -87,8 +87,12 @@ def set_access_cookies(response, access_token):
 
 
 def unset_jwt_cookies(response):
-  response.delete_cookie(Config.JWT_COOKIE_NAME, path="/")
-
+    response.delete_cookie(
+        Config.JWT_COOKIE_NAME,
+        path="/",
+        secure=Config.JWT_COOKIE_SECURE,
+        samesite=Config.JWT_COOKIE_SAMESITE,
+    )
 
 def jwt_required(optional=False):
   def decorator(view_function):
