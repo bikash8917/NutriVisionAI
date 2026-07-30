@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy import JSON
 from sqlalchemy.orm import relationship
@@ -7,7 +7,17 @@ from database import db
 
 
 def utc_now():
-  return datetime.utcnow()
+    return datetime.now(timezone.utc)
+
+
+def utc_isoformat(value):
+    if not value:
+      return None
+
+    if value.tzinfo is None:
+      value = value.replace(tzinfo=timezone.utc)
+
+    return value.astimezone(timezone.utc).isoformat().replace("+00:00", "Z")
 
 
 class User(db.Model):
@@ -30,7 +40,7 @@ class User(db.Model):
       "id": self.id,
       "username": self.username,
       "email": self.email,
-      "createdAt": self.created_at.isoformat() if self.created_at else None,
+      "createdAt": utc_isoformat(self.created_at) if self.created_at else None,
     }
 
 
@@ -68,8 +78,8 @@ class Profile(db.Model):
       "weight": self.weight or "",
       "activityLevel": self.activity_level or "Moderate",
       "dailyGoal": self.daily_goal or "Lose Weight",
-      "createdAt": self.created_at.isoformat() if self.created_at else None,
-      "updatedAt": self.updated_at.isoformat() if self.updated_at else None,
+      "createdAt": utc_isoformat(self.created_at) if self.created_at else None,
+      "updatedAt": utc_isoformat(self.updated_at) if self.updated_at else None,
     }
 
 
@@ -95,8 +105,8 @@ class Settings(db.Model):
       "notifications": bool(self.notifications_enabled),
       "reminders": bool(self.reminders_enabled),
       "units": self.preferred_units or "metric",
-      "createdAt": self.created_at.isoformat() if self.created_at else None,
-      "updatedAt": self.updated_at.isoformat() if self.updated_at else None,
+      "createdAt": utc_isoformat(self.created_at) if self.created_at else None,
+      "updatedAt": utc_isoformat(self.updated_at) if self.updated_at else None,
     }
 
 
@@ -126,8 +136,8 @@ class Goal(db.Model):
       "fatGoal": self.fat_goal or 0,
       "weightLossKg": self.weight_loss_kg or 3,
       "timeframeDays": self.timeframe_days or 30,
-      "createdAt": self.created_at.isoformat() if self.created_at else None,
-      "updatedAt": self.updated_at.isoformat() if self.updated_at else None,
+      "createdAt": utc_isoformat(self.created_at) if self.created_at else None,
+      "updatedAt": utc_isoformat(self.updated_at) if self.updated_at else None,
     }
 
 
@@ -155,8 +165,8 @@ class Meal(db.Model):
   calcium = db.Column(db.Float, default=0, nullable=False)
   iron = db.Column(db.Float, default=0, nullable=False)
   vitamin_c = db.Column(db.Float, default=0, nullable=False)
-  created_at = db.Column(db.DateTime, default=utc_now, nullable=False, index=True)
-  updated_at = db.Column(db.DateTime, default=utc_now, onupdate=utc_now, nullable=False)
+  created_at = db.Column(db.DateTime(timezone=True), default=utc_now, nullable=False, index=True)
+  updated_at = db.Column(db.DateTime(timezone=True), default=utc_now, onupdate=utc_now, nullable=False)
 
   user = relationship("User", back_populates="meals")
 
@@ -189,8 +199,8 @@ class Meal(db.Model):
       "calcium": self.calcium or 0,
       "iron": self.iron or 0,
       "vitaminC": self.vitamin_c or 0,
-      "createdAt": self.created_at.isoformat() if self.created_at else None,
-      "updatedAt": self.updated_at.isoformat() if self.updated_at else None,
+      "createdAt": utc_isoformat(self.created_at),
+      "updatedAt": utc_isoformat(self.updated_at),
     }
 
 
